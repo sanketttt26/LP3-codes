@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Job {
+public:
+    char id;
+    int deadline;
+    int profit;
+
+    Job(char id, int deadline, int profit) {
+        this->id = id;
+        this->deadline = deadline;
+        this->profit = profit;
+    }
+};
+
+bool compare(Job j1, Job j2) {
+    return j1.profit > j2.profit;
+}
+
+void printJobSequence(vector<Job>& jobs) {
+    sort(jobs.begin(), jobs.end(), compare);
+
+    int maxDeadline = 0;
+    for (const Job& job : jobs) {
+        if (job.deadline > maxDeadline) {
+            maxDeadline = job.deadline;
+        }
+    }
+
+    vector<char> result(maxDeadline, 'X');
+    vector<bool> slot(maxDeadline, false);
+
+    for (const Job& job : jobs) {
+        for (int j = min(maxDeadline - 1, job.deadline - 1); j >= 0; j--) {
+            if (!slot[j]) {
+                result[j] = job.id;
+                slot[j] = true;
+                break;
+            }
+        }
+    }
+
+    cout << "Job Sequence: ";
+    for (char jobId : result) {
+        if (jobId != 'X') {
+            cout << jobId << " ";
+        }
+    }
+    cout << endl;
+
+    int totalProfit = 0;
+    for (int i = 0; i < maxDeadline; i++) {
+        if (slot[i]) {
+            for (const Job& job : jobs) {
+                if (job.id == result[i]) {
+                    totalProfit += job.profit;
+                    break;
+                }
+            }
+        }
+    }
+    cout << "Total Profit: " << totalProfit << endl;
+}
+
+int main() {
+    vector<Job> jobs = {
+        Job('a', 2, 100),
+        Job('b', 1, 19),
+        Job('c', 2, 27),
+        Job('d', 1, 25),
+        Job('e', 3, 15)
+    };
+
+    cout << "Job Sequencing with Deadlines:" << endl;
+    printJobSequence(jobs);
+
+    return 0;
+}
