@@ -1,0 +1,106 @@
+import pandas as pd
+     
+
+# Reading the dataset
+diabetes_data = pd.read_csv('/content/drive/MyDrive/Datasets/diabetes.csv')
+     
+
+# Separate features (X) and target (y)
+X = diabetes_data.drop('Outcome', axis=1)
+y = diabetes_data['Outcome']
+
+     
+
+from sklearn.model_selection import train_test_split
+     
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+from sklearn.preprocessing import StandardScaler
+     
+
+# Feature scaling (important for KNN)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+     
+
+from sklearn.neighbors import KNeighborsClassifier
+     
+
+knn = KNeighborsClassifier(n_neighbors=5)  # You can experiment with different values of 'n_neighbors'
+knn.fit(X_train, y_train)
+
+
+
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+     
+
+y_pred = knn.predict(X_test)
+
+# Confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", conf_matrix)
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+# Error rate
+error_rate = 1 - accuracy
+print("Error Rate:", error_rate)
+
+# Precision, recall, F1-score
+class_report = classification_report(y_test, y_pred)
+print("Classification Report:\n", class_report)
+
+
+
+# performed using svm with hyperparameter tunined model
+
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+
+# ... (Your existing code for reading data, splitting data, and feature scaling) ...
+
+# Create an SVM classifier
+svm = SVC()
+
+# Define a parameter grid for hyperparameter tuning
+param_grid = {
+    'C': [0.1, 1, 10, 100],  # Regularization parameter
+    'kernel': ['linear', 'rbf', 'poly'],  # Kernel type
+    'gamma': ['scale', 'auto', 0.1, 1]  # Kernel coefficient
+}
+
+# Perform grid search with cross-validation
+grid_search = GridSearchCV(svm, param_grid, cv=5)
+grid_search.fit(X_train, y_train)
+
+# Get the best hyperparameters and model
+best_params = grid_search.best_params_
+best_svm = grid_search.best_estimator_
+
+# Make predictions on the test set
+y_pred = best_svm.predict(X_test)
+
+# Evaluate the model
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", conf_matrix)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+error_rate = 1 - accuracy
+print("Error Rate:", error_rate)
+
+class_report = classification_report(y_test, y_pred)
+print("Classification Report:\n", class_report)
+
+print("Best Hyperparameters:", best_params)
+
